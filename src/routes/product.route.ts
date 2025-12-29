@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   addProduct,
   getAllProduct,
+  getProductBySku,
   getProductDetails,
 } from "../controllers/product.controller";
 
@@ -11,5 +12,7 @@ router.post("/", addProduct);
 
 router.get("/", getAllProduct);
 router.get("/:slug", getProductDetails);
+
+router.get("/", getProductBySku);
 
 export default router;

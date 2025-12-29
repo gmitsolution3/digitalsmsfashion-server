@@ -3,6 +3,7 @@ import {
   createProduct,
   getAllProductService,
   getProduct,
+  productWithSku,
 } from "../services/product.service";
 
 export const addProduct = async (req: Request, res: Response) => {
@@ -52,21 +53,51 @@ export const getProductDetails = async (req: Request, res: Response) => {
         success: false,
         message: "search parameter is missing. Try with search parameter",
       });
-      return
+      return;
     }
 
-    const product= await getProduct(slug as string);
+    const product = await getProduct(slug as string);
 
-     if (!product) {
-       return res.status(404).json({
-         success: false,
-         message: "Product not found",
-       });
-     }
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
 
     res.status(200).json({
       success: true,
       data: product,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getProductBySku = async (req: Request, res: Response) => {
+  try {
+    const { sku } = req.query;
+
+    if (!sku || typeof sku !== "string") {
+      res.status(400).json({
+        success: false,
+        message: "sku is missing. Try with sku",
+      });
+      return;
+    }
+
+    const skuProduct = await productWithSku(sku);
+
+    if (!skuProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: skuProduct,
     });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });

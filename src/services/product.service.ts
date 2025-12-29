@@ -25,3 +25,11 @@ export async function getAllProductService() {
 export async function getProduct(slug: string) {
   return await productCollection.findOne({ slug });
 }
+
+export async function productWithSku(sku: string) {
+  return await productCollection.findOne({
+    $or: [{ sku }, { "variants.sku": sku }],
+    isDelete: false,
+    isDraft: false
+  });
+}
