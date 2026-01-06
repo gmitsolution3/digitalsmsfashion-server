@@ -4,6 +4,7 @@ import {
   DeleteService,
   DraftService,
   getAllProductService,
+  getFeatureProdct,
   getProduct,
   productWithSku,
 } from "../services/product.service";
@@ -146,5 +147,32 @@ export const getDeleteProduct = async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+export const getFeaturedProduct = async (req: Request, res: Response) => {
+  const query = { isDraft: false, featured: true, isDelete: false };
+
+  console.log(query)
+
+  try {
+    const result = await getFeatureProdct(query);
+
+    console.log(result)
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No feature data found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Feature Product found",
+      data: result,
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message, error: err });
   }
 };

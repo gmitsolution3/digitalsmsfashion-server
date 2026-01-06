@@ -41,11 +41,23 @@ export async function DraftService(query: { isDraft: boolean }) {
     .sort({ createdAt: -1 })
     .toArray();
 
-    return result;
+  return result;
 }
 
-
-export async function DeleteService(query:{isDelete: boolean}) {
+export async function DeleteService(query: { isDelete: boolean }) {
   const result = await productCollection.find(query).toArray();
-  return result
+  return result;
+}
+
+export async function getFeatureProdct(query: {
+  isDraft: boolean;
+  featured: boolean;
+  isDelete: boolean;
+}) {
+  const result = await productCollection
+    .find(query)
+    .sort({ createdAt: -1 })
+    .toArray();
+
+    return result
 }
