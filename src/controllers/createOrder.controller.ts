@@ -62,6 +62,8 @@ export const getOrderById = async (req: Request, res: Response) => {
 
   const query = { _id: new ObjectId(id) };
 
+  console.log("get into wrong place")
+
   try {
     const response = await getSingleOrder(query);
 
@@ -90,6 +92,12 @@ export const updateOrder = async (req: Request, res: Response) => {
   const { id } = req.params;
   const payload = req.body;
 
+
+  // console.log({payload: payload});
+
+  const query = { _id: new ObjectId(id) };
+
+
   try {
     if (!ObjectId.isValid(id!)) {
       return res.status(400).json({
@@ -98,7 +106,9 @@ export const updateOrder = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await updateSingleOrder({ _id: new ObjectId(id) }, payload);
+    const result = await updateSingleOrder(query, payload);
+
+    console.log({resultFromServer: result});
 
     if (result.matchedCount === 0) {
       return res.status(404).json({

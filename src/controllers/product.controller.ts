@@ -113,6 +113,8 @@ export const getDraftProduct = async (req: Request, res: Response) => {
   try {
     const result = await DraftService(query);
 
+    console.log(result)
+
     if (result.length === 0) {
       return res
         .status(404)

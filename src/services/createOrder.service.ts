@@ -118,7 +118,13 @@ export async function getSingleOrder(query: any) {
 }
 
 export const updateSingleOrder = async (query: any, payload: any) => {
+
+  console.log({payload: payload, query: query});
+
+   const { _id, ...updateData } = payload;
+
+
   return await createOrderCollection.updateOne(query, {
-    $set: payload,
+    $set: updateData,
   });
 };
