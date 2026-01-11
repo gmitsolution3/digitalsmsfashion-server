@@ -126,11 +126,6 @@ export const updateSingleOrder = async (query: any, payload: any) => {
 };
 
 export async function getHistory(query: any) {
-  // const historyTracker = await createOrderCollection
-  //   .find(query)
-  //   .sort({ createdAt: -1 })
-  //   .toArray();
-
   const historyTracker = await createOrderCollection
     .aggregate([
       {
@@ -184,11 +179,11 @@ export async function getHistory(query: any) {
             },
           },
           totalDueOrders: {
-            $sum: { $cond: [{ $eq: ["$paymentStatus", "due"] }, 1, 0] },
+            $sum: { $cond: [{ $eq: ["$paymentStatus", "pending"] }, 1, 0] },
           },
           totalDueAmount: {
             $sum: {
-              $cond: [{ $eq: ["$paymentStatus", "due"] }, "$grandTotal", 0],
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$grandTotal", 0],
             },
           },
           userInfo: { $first: "$customerInfo" },
@@ -198,8 +193,119 @@ export async function getHistory(query: any) {
           lastOrderDate: { $max: "$createdAt" },
         },
       },
-    ]).toArray();
-
+    ])
+    .toArray();
 
   return historyTracker;
+}
+
+export async function getDashboardAnalytics() {
+  const analytics = await createOrderCollection
+    .aggregate([
+      {
+        $group: {
+          _id: null,
+
+          //  Total Orders
+          totalOrders: { $sum: 1 },
+
+          // Financial
+          totalGrandTotal: { $sum: "$grandTotal" },
+
+          //  Order Status Counts
+          pending: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "pending"] }, 1, 0] },
+          },
+          processing: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "processing"] }, 1, 0] },
+          },
+          courier: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "courier"] }, 1, 0] },
+          },
+          onHold: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "on-hold"] }, 1, 0] },
+          },
+          cancelled: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "cancelled"] }, 1, 0] },
+          },
+          returned: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "return"] }, 1, 0] },
+          },
+          completed: {
+            $sum: { $cond: [{ $eq: ["$orderStatus", "completed"] }, 1, 0] },
+          },
+
+          //  Payment Summary
+          totalPaidOrders: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "success"] }, 1, 0],
+            },
+          },
+
+          totalPaidAmount: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "success"] }, "$grandTotal", 0],
+            },
+          },
+          totalDueOrders: {
+            $sum: { $cond: [{ $eq: ["$paymentStatus", "pending"] }, 1, 0] },
+          },
+          totalDueAmount: {
+            $sum: {
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$grandTotal", 0],
+            },
+          },
+
+          // Dates
+          firstOrderDate: { $min: "$createdAt" },
+          lastOrderDate: { $max: "$createdAt" },
+        },
+      },
+    ])
+    .toArray();
+
+  const productAnalytics = await createOrderCollection
+    .aggregate([
+      { $unwind: "$products" },
+      {
+        $group: {
+          _id: "$products.productId",
+          totalQuantitySold: { $sum: "$products.quantity" },
+          totalSalesAmount: { $sum: "$products.subtotal" },
+        },
+      },
+      { $sort: { totalQuantitySold: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $project: {
+          _id: 1,
+          totalQuantitySold: 1,
+          totalSalesAmount: 1,
+          categoryName: "$productDetails.category",
+          productTitle: "$productDetails.title",
+          productSlug: "$productDetails.slug",
+          productThumbnail: "$productDetails.thumbnail",
+        },
+      },
+    ])
+    .toArray();
+
+  const totalOrder = await createOrderCollection.countDocuments();
+
+  const totalProduct = await productCollection.countDocuments();
+  return {
+    totalOrder: totalOrder,
+    analytics: analytics,
+    totalProduct: totalProduct,
+    productAnalytics: productAnalytics,
+  };
 }

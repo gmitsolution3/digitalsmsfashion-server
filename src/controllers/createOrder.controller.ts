@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   CreateOrderService,
   getAllOrder,
+  getDashboardAnalytics,
   getHistory,
   getSingleOrder,
   updateSingleOrder,
@@ -168,3 +169,27 @@ export const historyController =async (req:Request, res:Response)=>{
   }
 
 }
+
+export const dashboardAnalyticsController = async (req: Request, res: Response) => {
+
+  try{
+    const result = await getDashboardAnalytics()
+
+    res.status(200).json({
+      success:true,
+      message:"Dashboard analytics data found",
+      data:result
+    })
+
+
+  }catch(err:any){
+    res.status(500).json({
+      success:false,
+      message:"Something went wrong",
+      data:err
+    })
+  }
+
+
+
+};
