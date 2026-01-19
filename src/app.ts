@@ -15,12 +15,17 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: ["https://gm-commerce.vercel.app", "http://localhost:3000"],
+    origin: [
+      "https://gm-commerce.vercel.app",
+      "http://localhost:3000",
+      "https://yellowfurniture.vercel.app",
+      "https://yellowfurniture.xyz/",
+    ],
     credentials: true,
     exposedHeaders: ["set-cookie"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 app.use(cookieParser());
 
