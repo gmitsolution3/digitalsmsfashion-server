@@ -8,6 +8,7 @@ import {
   getFeatureProdct,
   getProduct,
   primaryDeleteProductService,
+  productUpdateService,
   productWithSku,
 } from "../services/product.service";
 import { topSellingProduct } from "../services/createOrder.service";
@@ -260,3 +261,52 @@ export const primaryProductDelete = async (req: Request, res: Response) => {
     });
   }
 };
+
+
+export const productUpdateController = async(req:Request, res:Response)=>{
+  const id = req.params.id;
+  const data = req.body;
+
+  try{
+    const query = {_id: new ObjectId(id)}
+    if(!query){
+      return res.status(404).json({
+        success: false,
+        message: "Id is require"
+      })
+    }
+
+    if(!data){
+      return res.status(404).json({
+        success: false,
+        message: "Data is require"
+      })
+    }
+
+    const result = await productUpdateService(query, data)
+
+    if(!result){
+      return res.status(500).json({
+        success: false,
+        message: "Data not updated yet! try again",
+      })
+    }
+
+    return res.status(200).json({
+      success: false,
+      message: "Data updated successfully",
+      data: result
+    })
+
+
+  }catch(err:any){
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      error: err
+    })
+  }
+
+
+
+}

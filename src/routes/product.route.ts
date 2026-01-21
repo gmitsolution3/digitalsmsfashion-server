@@ -9,6 +9,7 @@ import {
   getProductDetails,
   getTopSellingProduct,
   primaryProductDelete,
+  productUpdateController,
 } from "../controllers/product.controller";
 
 const router = Router();
@@ -21,6 +22,7 @@ router.get("/draft", getDraftProduct);
 router.get("/delete-product", getDeleteProduct);
 router.get("/get-top-selling-product", getTopSellingProduct);
 router.patch("/primary-delete/:id", primaryProductDelete);
+router.put("/update-product/:id", productUpdateController);
 
 router.get("/:slug", getProductDetails);
 

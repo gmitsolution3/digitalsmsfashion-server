@@ -1,4 +1,4 @@
-import { ObjectId } from "mongodb";
+import { ObjectId, ReturnDocument } from "mongodb";
 import { client } from "../config/db";
 import { Product } from "../models/product.model";
 
@@ -11,12 +11,10 @@ export async function createProduct(product: Product) {
   return result;
 }
 
-export async function existingProductSlug(slug:string) {
-  const result = await productCollection.findOne({slug: slug})
+export async function existingProductSlug(slug: string) {
+  const result = await productCollection.findOne({ slug: slug });
   return result;
 }
-
-
 
 export async function getAllProductService() {
   const query = { isDraft: false, isDelete: false };
@@ -67,23 +65,24 @@ export async function getFeatureProdct(query: {
     .sort({ createdAt: -1 })
     .toArray();
 
-    return result
+  return result;
 }
 
-
-export const primaryDeleteProductService = async (
-  query: any,
-) => {
+export const primaryDeleteProductService = async (query: any) => {
   const result = await productCollection.findOneAndUpdate(
     query,
     { $set: { isDelete: true } },
-    { returnDocument: "after" }
+    { returnDocument: "after" },
   );
 
   return result;
 };
 
-
-
-
-
+export const productUpdateService = async (query: any, payload: any) => {
+  const result = await productCollection.findOneAndUpdate(
+    query,
+    { $set: payload },
+    { returnDocument: "after" },
+  );
+  return result;
+};
