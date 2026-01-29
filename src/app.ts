@@ -20,6 +20,7 @@ app.use(
       "http://localhost:3000",
       "https://www.crabfashionbd.com",
       "https://crab-client.vercel.app",
+      "https://e-commerce-01-brown.vercel.app",
     ],
     credentials: true,
     exposedHeaders: ["set-cookie"],
