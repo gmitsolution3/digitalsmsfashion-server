@@ -23,6 +23,7 @@ app.use(
       "https://e-commerce-01-brown.vercel.app",
       "http://naturax.org",
       "https://naturax.org",
+      "https://naturax-client.vercel.app",
     ],
     credentials: true,
     exposedHeaders: ["set-cookie"],
