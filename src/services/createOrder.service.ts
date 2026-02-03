@@ -26,9 +26,7 @@ export async function CreateOrderService(payload: any) {
 
   //  Merge frontend cart with DB data & validate price / stock
   const finalProducts = payload.products.map((cartItem: any) => {
-    const productDB = productsFromDB.find(
-      (p) => p.slug === cartItem.slug,
-    );
+    const productDB = productsFromDB.find((p) => p.slug === cartItem.slug);
     if (!productDB) {
       return {
         success: false,
@@ -48,10 +46,7 @@ export async function CreateOrderService(payload: any) {
     }
 
     // Validate stock
-    const availableStock = parseInt(
-      productDB.stockQuantity as string,
-      10,
-    );
+    const availableStock = parseInt(productDB.stockQuantity as string, 10);
     if (cartItem.quantity > availableStock) {
       return {
         success: false,
@@ -63,8 +58,7 @@ export async function CreateOrderService(payload: any) {
     let basePrice = parseFloat(productDB.basePrice);
     if (productDB.discount?.type === "percentage") {
       basePrice =
-        basePrice -
-        (basePrice * parseFloat(productDB.discount.value)) / 100;
+        basePrice - (basePrice * parseFloat(productDB.discount.value)) / 100;
     }
 
     return {
@@ -85,8 +79,7 @@ export async function CreateOrderService(payload: any) {
     0,
   );
 
-  const deliveryCharge =
-    payload.deliveryMethod === "inside" ? 80 : 100;
+  const deliveryCharge = payload.deliveryMethod === "inside" ? 80 : 100;
   const grandTotal = subtotal + deliveryCharge;
 
   //  Prepare final order object
@@ -146,8 +139,7 @@ export async function CreateOrderService(payload: any) {
             event_time: Math.floor(Date.now() / 1000),
             action_source: "website",
             event_source_url:
-              payload.sourceUrl ||
-              "https://gm-commerce.vercel.app/checkout",
+              payload.sourceUrl || "https://gm-commerce.vercel.app/checkout",
             user_data: {
               em: payload.customerInfo.email
                 ? hashSha256(payload.customerInfo.email)
@@ -273,11 +265,7 @@ export async function getHistory(query: any) {
 
           totalPaidAmount: {
             $sum: {
-              $cond: [
-                { $eq: ["$paymentStatus", "success"] },
-                "$grandTotal",
-                0,
-              ],
+              $cond: [{ $eq: ["$paymentStatus", "success"] }, "$grandTotal", 0],
             },
           },
           totalDueOrders: {
@@ -287,11 +275,7 @@ export async function getHistory(query: any) {
           },
           totalDueAmount: {
             $sum: {
-              $cond: [
-                { $eq: ["$paymentStatus", "pending"] },
-                "$grandTotal",
-                0,
-              ],
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$grandTotal", 0],
             },
           },
           userInfo: { $first: "$customerInfo" },
@@ -366,11 +350,7 @@ export async function getDashboardAnalytics() {
 
           totalPaidAmount: {
             $sum: {
-              $cond: [
-                { $eq: ["$paymentStatus", "success"] },
-                "$grandTotal",
-                0,
-              ],
+              $cond: [{ $eq: ["$paymentStatus", "success"] }, "$grandTotal", 0],
             },
           },
           totalDueOrders: {
@@ -380,11 +360,7 @@ export async function getDashboardAnalytics() {
           },
           totalDueAmount: {
             $sum: {
-              $cond: [
-                { $eq: ["$paymentStatus", "pending"] },
-                "$grandTotal",
-                0,
-              ],
+              $cond: [{ $eq: ["$paymentStatus", "pending"] }, "$grandTotal", 0],
             },
           },
 
@@ -431,6 +407,32 @@ export async function getDashboardAnalytics() {
     ])
     .toArray();
 
+  const totalPurchaseResult = await productCollection
+  .aggregate([
+    {
+      $match: {
+        isDelete: false 
+      }
+    },
+    {
+      $project: {
+        purchase: {
+          $toDouble: "$purchase"
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        totalOverallPurchase: { $sum: "$purchase" }
+      }
+    }
+  ])
+  .toArray();
+
+const totalOverallPurchase =
+  totalPurchaseResult[0]?.totalOverallPurchase || 0;
+
   const totalOrder = await createOrderCollection.countDocuments();
 
   const totalProduct = await productCollection.countDocuments();
@@ -439,6 +441,7 @@ export async function getDashboardAnalytics() {
     analytics: analytics,
     totalProduct: totalProduct,
     productAnalytics: productAnalytics,
+    totalOverallPurchase
   };
 }
 
