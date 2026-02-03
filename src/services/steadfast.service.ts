@@ -44,8 +44,8 @@ export const createSteadFastParcel = async (order: any) => {
   return courier;
 };
 
-export const trackParcel = async (trackingCode: string) => {
-  const res = await steadFastApi.get(`/track/${trackingCode}`);
+export const trackSteadFastParcel = async (trackingCode: string) => {
+  const res = await steadFastApi.get(`/status_by_trackingcode/${trackingCode}`);
 
   return res.data;
 };

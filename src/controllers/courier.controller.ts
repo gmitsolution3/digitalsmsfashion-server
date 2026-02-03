@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { client } from "../config/db";
 import { ObjectId } from "mongodb";
-import { createSteadFastParcel } from "../services/steadfast.service";
+import {
+  createSteadFastParcel,
+  trackSteadFastParcel,
+} from "../services/steadfast.service";
 
 const orderCollection = client
   .db("loweCommerce")
@@ -41,6 +44,38 @@ export const assignCourier = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to assign courier",
+    });
+  }
+};
+
+export const getCourierStatusForOrder = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { orderId } = req.params;
+
+    const order = await orderCollection.findOne({
+      _id: new ObjectId(orderId as string),
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "No Order found!",
+      });
+    }
+
+    const orderStatus = await trackSteadFastParcel(
+      order.courier.trackingCode,
+    );
+
+    res.status(200).json(orderStatus);
+  } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: "Failed to assign courier",
