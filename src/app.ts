@@ -22,14 +22,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
     origin: [
-      "https://gm-commerce.vercel.app",
       "http://localhost:3000",
-      "https://www.crabfashionbd.com",
-      "https://crab-client.vercel.app",
-      "https://e-commerce-01-brown.vercel.app",
-      "http://naturax.org",
-      "https://naturax.org",
-      "https://naturax-client.vercel.app",
+      "https://digitalsmsfashion.vercel.app",
     ],
     credentials: true,
     exposedHeaders: ["set-cookie"],
