@@ -24,6 +24,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "https://digitalsmsfashion.vercel.app",
+      "https://www.digitalsmsfashion.com",
     ],
     credentials: true,
     exposedHeaders: ["set-cookie"],
